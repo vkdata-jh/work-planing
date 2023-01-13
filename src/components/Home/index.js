@@ -8,16 +8,18 @@ export default function Home() {
 	const renderCount = useRef(0);
 	const employeeCount = useRef(employees.length);
 	const [valid, setValid] = useState(false);
+    const [validPlan,setValidPlan]=useState(false);
 	const [listOfEmployees, setlistOfEmployees] = useState(employees);
 	const [activeTab, setActiveTab] = useState('list-of-employees');
     const [activeRadio,setActiveRadio]=useState(false);
+    const [activePlan,setActivePlan]=useState("red");
 
     const defaultWorkPlan ={
 		minutes: 0,
 		meters: 0,
 		employees: 0
 	};
-	const [workPlan, setworkPlan] = useState();
+	const [workPlan, setworkPlan] = useState(defaultWorkPlan);
 	const [tempworkPlan, setTempworkPlan] = useState(defaultWorkPlan);
 	const malePower = 1;
     const femalePower=0.5;
@@ -46,9 +48,12 @@ export default function Home() {
 			sex: 10,
 			power: 0
 		});
+        updatePower();
+
 	};
 	const handleDelete = (id) => {
-		setlistOfEmployees(listOfEmployees.filter( employee => employee.id != id));        
+		setlistOfEmployees(listOfEmployees.filter( employee => employee.id !== id));  
+        updatePower();      
 	};
 	const verifyData = (data) => {
         console.log('data pro kontrolu',data,data.sex,data.name.length);
@@ -56,28 +61,31 @@ export default function Home() {
             {setValid(false);}else {setValid(true)};
 		console.log('proběhla kontrola-výsledek',valid);
 	};
-	const handlePower = (e) => {
-		setTempworkPlan({ ...tempworkPlan, [e.target.name]: e.target.value});
+	const handlePlan = (event) => {
+		setTempworkPlan({...tempworkPlan,[event.target.name]:event.target.value});   
+        checkPlan();     
 	};
+    const checkPlan=()=>{
+        if(tempworkPlan.minutes<=workPlan.minutes 
+            && tempworkPlan.meters<=workPlan.meters
+            && Number(tempworkPlan.minutes)>=1 && Number(tempworkPlan.meters)>=1
+            ){
+            setValidPlan(true);
+            setActivePlan("green");
+        }else{setValidPlan(false);
+            setActivePlan("red");}
+    };
 
-	const updatePower = async () => {
-		const PowerValue = tempworkPlan;
-		let newPowerValue = {};
-		// PowerValue = {minutes: "", meters: "", employees: ""}
-		const keys = Object.keys(PowerValue);
-		// keys = ['minutes', 'meters', 'employees']
-		// key = keys[1]
-		keys.map((key) => {
-			// PowerValue.meters
-			if (parseInt(PowerValue[key])) {
-				newPowerValue[key] = parseInt(workPlan[key]) + parseInt(PowerValue[key]);
-			} else {
-				newPowerValue[key] = parseInt(workPlan[key]);
-			}
-		})
-		await setworkPlan(newPowerValue);
-		await setTempworkPlan({ minutes: "", meters: "", employees: ""});
-		console.log(workPlan);
+	const updatePower = () => {
+		let meter=0;
+        const minutes=listOfEmployees.length*60;
+        listOfEmployees.map((employee)=>(
+            meter+=employee.power
+        ));
+        const employeesCount=listOfEmployees.length;
+        setworkPlan({...workPlan,minutes:minutes,meters:meter,employees:employeesCount});
+		
+		
 	};
 
 	const switchTab = (e, newValue) => {
@@ -86,13 +94,14 @@ export default function Home() {
 		setActiveTab(newActiveTab);
 	};
 
-	// useEffect(() => {
-    //     console.log("stav valid",valid,"render count",renderCount);	  
-	//     renderCount.current++;	  
-	// }, [addEmployee]);
-	// useEffect(() => {
-	//   renderCount.current++;
-	// },[]);
+	useEffect(() => {
+        updatePower();        
+	}, [addEmployee]);
+    useEffect(()=>{
+        checkPlan();        
+    });
+    
+	
 
 	return (
 		<PageContainer>
@@ -110,7 +119,7 @@ export default function Home() {
 						{
 								listOfEmployees.map((employee) => (
 									<EmployeeItem key={employee.id} name={employee.name}>
-										{employee.name} / {employee.sex} / {employee.power}
+									<>příjmení&nbsp;&nbsp;</>	{employee.name}&nbsp;&nbsp;/&nbsp;<>&nbsp;</> {employee.power}&nbsp;m&nbsp;/&nbsp;hod.&nbsp;
 										<DeleteEmployee
 											onClick={() => {handleDelete(employee.id)}}
 										>
@@ -131,7 +140,7 @@ export default function Home() {
 							onChange={handleChange}
 						/>
 						
-                        <label >muž&nbsp;<input type="radio" name="sex" value="0" onChange={handleChange}/></label>
+                        <label >muž&nbsp;<input type="radio" name="sex" value="0" onChange={handleChange} checked/></label>
                         <label>žena<input type="radio" name="sex" value="1" onChange={handleChange}/></label>	
 
 						<button
@@ -165,7 +174,7 @@ export default function Home() {
 							className="inputClass"
 							name="minutes"
 							value={tempworkPlan.minutes}
-							onChange={handlePower}
+							onChange={handlePlan}
 						/>
 						<input
 							type="number"
@@ -173,15 +182,18 @@ export default function Home() {
 							className="inputClass"
 							name="meters"
 							value={tempworkPlan.meters}
-							onChange={handlePower}
+							onChange={handlePlan}
 						/>
 						
-						<button
+						<TabButton
+                            name={activePlan}  
+                            type="reset"  
+                        style={{background:`${activePlan}`}}                    
 							className="inputClass"
-							onClick={updatePower}
+							disabled={!validPlan}
 						>
 							Plán
-						</button>
+						</TabButton>
 					</EmployeeForm>
 				</>
 			}

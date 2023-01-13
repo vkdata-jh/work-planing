@@ -12,7 +12,9 @@ export const PageContainer = styled.div`
 export const EmployeeList = styled.div`
   display: flex;
   flex-direction: column;
+  
   width: 500px;
+  font-size:0.8rem;
   background: trasparent;
 `;
 export const EmployeeForm = styled(EmployeeList)`
@@ -26,7 +28,7 @@ export const EmployeeItem = styled.div`
   display: block;
   height: 30px;
   padding: 0 15px;
-  align-items: center;
+  align-content:left;
   justify-content: center;
   padding-top: 5px;
   justify-content: space-between;
@@ -67,11 +69,5 @@ export const TabButton = styled.button`
   font-size: 20px;
   cursor: pointer;
   background-color: transparent;
-  ${props => {
-    if (props.name === props.activeTab) {
-      return `
-        background-color: rgba(255, 255, 255, 0.3);
-      `;
-    }
-  }}
+  
 `;
