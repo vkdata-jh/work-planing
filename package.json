@@ -1,6 +1,6 @@
 {
   "name": "work-planing",
-  "homepage": "https://vkdata.cz/work-planning/",
+  "homepage": "https://vkdata-jh.github.com/work-planing/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
