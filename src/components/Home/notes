@@ -1,0 +1,15 @@
+list-of-employees
+work-plan
+:plán -minutes
+        -meters
+        -employees
+data:employees
+tempWorkPlan
+malePower
+femalePower
+
+employee
+-name
+-sex -male 0,female 1
+-power
+

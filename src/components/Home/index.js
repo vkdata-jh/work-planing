@@ -1,89 +1,83 @@
 import React, { useState, useRef, useEffect } from "react";
-import { PageContainer, DogList, DogItem, DogForm, Buttons, TabButton, KillTheDog } from "./homeStyles";
+import { PageContainer, EmployeeList,EmployeeItem,EmployeeForm,DeleteEmployee,employeeList, Buttons, TabButton } from "./homeStyles";
 import { dogs } from "./dogsData";
+import {employees} from "./zamestananci"
 
 export default function Home() {
+    document.title="Plánování práce";
 	const renderCount = useRef(0);
-	const dogsCount = useRef(dogs.length);
+	const employeeCount = useRef(employees.length);
 	const [valid, setValid] = useState(false);
-	const [listOfDogs, setListOfDogs] = useState(dogs);
-	const [activeTab, setActiveTab] = useState('list-of-dogs');
-	const [shelterStorage, setShelterStorage] = useState({
-		food: 35,
-		vaccine: 15,
-		pills: 20
-	});
-	const [tempShelterStorage, setTempShelterStorage] = useState({
-		food: "",
-		vaccine: "",
-		pills: ""
-	});
-	const dogsRequirements = {
-		food: 5,
-		vaccine: 1,
-		pills: 2
+	const [listOfEmployees, setlistOfEmployees] = useState(employees);
+	const [activeTab, setActiveTab] = useState('list-of-employees');
+    const [activeRadio,setActiveRadio]=useState(false);
+
+    const defaultWorkPlan ={
+		minutes: 0,
+		meters: 0,
+		employees: 0
 	};
-	const [addDog, setAddDog] = useState({
-		id: (dogsCount.current + 1),
+	const [workPlan, setworkPlan] = useState();
+	const [tempworkPlan, setTempworkPlan] = useState(defaultWorkPlan);
+	const malePower = 1;
+    const femalePower=0.5;
+	const [addEmployee, setAddEmployee] = useState({
+		id: (employeeCount.current + 1),
 		name: "",
-		race: "",
-		age: 0
+		sex: 10,
+		power: 0
 	});
 
 	const handleChange = (e) => {
-		setAddDog({...addDog, [e.target.name]: e.target.value});
-		// verifyData(addDog);
+        console.log('handle',e.target);
+        (Number([e.target.value])===1)? setAddEmployee({...addEmployee, [e.target.name]:e.target.value,power:0.5}):setAddEmployee({...addEmployee, [e.target.name]:e.target.value,power:1});
+        verifyData(addEmployee);
 	};
 	const handleAdd = (e) => {
 		e.preventDefault();
-		setListOfDogs((listOfDogs) => {
-			return [...listOfDogs, addDog];
+        
+		setlistOfEmployees((listOfEmployees) => {
+			return [...listOfEmployees, addEmployee];
 		});
-		dogsCount.current++;
-		setAddDog({
-			id: (dogsCount.current + 1),
+		employeeCount.current++;
+		setAddEmployee({
+			id: (employeeCount.current + 1),
 			name: "",
-			race: "",
-			age: 0
+			sex: 10,
+			power: 0
 		});
 	};
 	const handleDelete = (id) => {
-		setListOfDogs(listOfDogs.filter( dog => dog.id != id));
+		setlistOfEmployees(listOfEmployees.filter( employee => employee.id != id));        
 	};
 	const verifyData = (data) => {
-		if (parseInt(data.age) > 0 && parseInt(data.age) < 25) {
-			return setValid(false);
-		}
-		if (data.name === "" || data.name.trim().length <= 0) {
-			return setValid(false);
-		}
-		if (data.race === "" || data.race.trim().length <= 0) {
-			return setValid(false);
-		}
-		setValid(true);
+        console.log('data pro kontrolu',data,data.sex,data.name.length);
+		if ( data.name.length<=0) 
+            {setValid(false);}else {setValid(true)};
+		console.log('proběhla kontrola-výsledek',valid);
 	};
-	const handleStorage = (e) => {
-		setTempShelterStorage({ ...tempShelterStorage, [e.target.name]: e.target.value});
+	const handlePower = (e) => {
+		setTempworkPlan({ ...tempworkPlan, [e.target.name]: e.target.value});
 	};
 
-	const updateStorage = async () => {
-		const storageValue = tempShelterStorage;
-		let newStorageValue = {};
-		// storageValue = {food: "", vaccine: "", pills: ""}
-		const keys = Object.keys(storageValue);
-		// keys = ['food', 'vaccine', 'pills']
+	const updatePower = async () => {
+		const PowerValue = tempworkPlan;
+		let newPowerValue = {};
+		// PowerValue = {minutes: "", meters: "", employees: ""}
+		const keys = Object.keys(PowerValue);
+		// keys = ['minutes', 'meters', 'employees']
 		// key = keys[1]
 		keys.map((key) => {
-			// storageValue.vaccine
-			if (parseInt(storageValue[key])) {
-				newStorageValue[key] = parseInt(shelterStorage[key]) + parseInt(storageValue[key]);
+			// PowerValue.meters
+			if (parseInt(PowerValue[key])) {
+				newPowerValue[key] = parseInt(workPlan[key]) + parseInt(PowerValue[key]);
 			} else {
-				newStorageValue[key] = parseInt(shelterStorage[key]);
+				newPowerValue[key] = parseInt(workPlan[key]);
 			}
 		})
-		await setShelterStorage(newStorageValue);
-		await setTempShelterStorage({ food: "", vaccine: "", pills: ""});
-		console.log(shelterStorage);
+		await setworkPlan(newPowerValue);
+		await setTempworkPlan({ minutes: "", meters: "", employees: ""});
+		console.log(workPlan);
 	};
 
 	const switchTab = (e, newValue) => {
@@ -93,121 +87,102 @@ export default function Home() {
 	};
 
 	// useEffect(() => {
-	//   if (renderCount.curren > 0) {
-	//     verifyData(addDog);
-	//   }
-	// }, [addDog]);
+    //     console.log("stav valid",valid,"render count",renderCount);	  
+	//     renderCount.current++;	  
+	// }, [addEmployee]);
 	// useEffect(() => {
-	//   renderCount.curren++;
+	//   renderCount.current++;
 	// },[]);
 
 	return (
 		<PageContainer>
 			<Buttons>
-				<TabButton name="list-of-dogs" activeTab={activeTab} onClick={(event) => { switchTab(event, 'list-of-dogs') }}>
-					Seznam Psů
+				<TabButton name="list-of-employees" activeTab={activeTab} onClick={(event) => { switchTab(event, 'list-of-employees') }}>
+					Seznam zaměstnanců
 				</TabButton>
-				<TabButton name="shelter-storage" activeTab={activeTab} onClick={(event) => { switchTab(event, 'shelter-storage') }}>
-					Sklad útulku
+				<TabButton name="work-plan" activeTab={activeTab} onClick={(event) => { switchTab(event, 'work-plan') }}>
+					Pracovní plán
 				</TabButton>
 			</Buttons>
-			{ (activeTab === 'list-of-dogs') && 
+			{ (activeTab === 'list-of-employees') && 
 				<>
-					<DogList name="dogList">
+					<EmployeeList name="employeeList">
 						{
-								listOfDogs.map((dog) => (
-									<DogItem key={dog.id} name={dog.name}>
-										{dog.name} / {dog.race} / {dog.age}
-										<KillTheDog
-											onClick={() => {handleDelete(dog.id)}}
+								listOfEmployees.map((employee) => (
+									<EmployeeItem key={employee.id} name={employee.name}>
+										{employee.name} / {employee.sex} / {employee.power}
+										<DeleteEmployee
+											onClick={() => {handleDelete(employee.id)}}
 										>
 											x
-										</KillTheDog>
-									</DogItem>
+										</DeleteEmployee>
+									</EmployeeItem>
 								))
 						}
-					</DogList>
-					<DogForm name="dogForm">
+					</EmployeeList>
+					<EmployeeForm name="employeeForm">
+                        
 						<input
 							type="text"
-							placeholder="jméno psa"
+							placeholder="jméno zaměstnance"
 							className="inputClass"
 							name="name"
-							value={addDog.name}
+							value={addEmployee.name}
 							onChange={handleChange}
 						/>
-						<input
-							type="text"
-							placeholder="rasa psa"
-							className="inputClass"
-							name="race"
-							value={addDog.race}
-							onChange={handleChange}
-						/>
-						<input
-							type="number"
-							min="0"
-							max="25"
-							placeholder="věk psa"
-							className="inputClass"
-							name="age"
-							value={addDog.age}
-							onChange={handleChange}
-						/>
+						
+                        <label >muž&nbsp;<input type="radio" name="sex" value="0" onChange={handleChange}/></label>
+                        <label>žena<input type="radio" name="sex" value="1" onChange={handleChange}/></label>	
+
 						<button
 							className="inputClass"
 							onClick={handleAdd}
+                            disabled={!valid}
 						>
 							Přidat
 						</button>
-					</DogForm>
+                        
+					</EmployeeForm>
 				</>
 			}
-			{ (activeTab === 'shelter-storage') &&
+			{ (activeTab === 'work-plan') &&
 				<>
-					<DogForm style={{ flexDirection: 'column '}}>
+					<EmployeeForm style={{ flexDirection: 'column '}}>
 						<div
 							className="inputClass"
 							style={{color: 'white', height: 'auto'}}
 						>
 							<b>Aktuální zásoby</b>
 							<p>
-								krmivo: {shelterStorage.food},
-								vakcíny: {shelterStorage.vaccine},
-								tabletky: {shelterStorage.pills}
+								člověkominut: {workPlan.minutes},
+								člověkometrů: {workPlan.meters},
+								zaměstnanců: {workPlan.employees}
 							</p>
 						</div>
 						<input
 							type="number"
-							placeholder="krmivo (kg)"
+							placeholder="minuty"
 							className="inputClass"
-							name="food"
-							value={tempShelterStorage.food}
-							onChange={handleStorage}
+							name="minutes"
+							value={tempworkPlan.minutes}
+							onChange={handlePower}
 						/>
 						<input
 							type="number"
-							placeholder="vakcíny (ks)"
+							placeholder="metry"
 							className="inputClass"
-							name="vaccine"
-							value={tempShelterStorage.vaccine}
-							onChange={handleStorage}
+							name="meters"
+							value={tempworkPlan.meters}
+							onChange={handlePower}
 						/>
-						<input
-							type="number"
-							placeholder="tabletky (ks)"
-							className="inputClass"
-							name="pills"
-							value={tempShelterStorage.pills}
-							onChange={handleStorage}
-						/>
+						
 						<button
 							className="inputClass"
-							onClick={updateStorage}
+							onClick={updatePower}
 						>
-							Doplnit zásoby
+							Plán
 						</button>
-					</DogForm>
+					</EmployeeForm>
 				</>
 			}
 		</PageContainer>

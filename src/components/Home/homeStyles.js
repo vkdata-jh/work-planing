@@ -9,15 +9,20 @@ export const PageContainer = styled.div`
   align-items: center;
   background-color: #64766a;
 `;
-
-export const DogList = styled.div`
+export const EmployeeList = styled.div`
   display: flex;
   flex-direction: column;
   width: 500px;
   background: trasparent;
 `;
-
-export const DogItem = styled.div`
+export const EmployeeForm = styled(EmployeeList)`
+  flex-direction: row;
+  margin:  50px 0;
+  padding-top: 0;
+  justify-content: space-between;
+  align-items: center;
+`;
+export const EmployeeItem = styled.div`
   display: block;
   height: 30px;
   padding: 0 15px;
@@ -30,20 +35,26 @@ export const DogItem = styled.div`
     background-color: #c0a9bd;
   }
 `;
-
-export const DogForm = styled(DogList)`
-  flex-direction: row;
-  margin:  50px 0;
-  padding-top: 0;
-  justify-content: space-between;
+export const DeleteEmployee = styled.div`
+  display: flex;
+  position: relative;
+  z-index: 50;
+  height: 20px;
+  width: 20px;
+  margin: 0;
+  padding: 0;
   align-items: center;
+  justify-content: center;
+  color: red;
+  top: -20px;
+  border-radius: 50%;
+  border: 1px solid red;
+  cursor: pointer;
 `;
-
-export const Buttons = styled(DogForm)`
+export const Buttons = styled(EmployeeForm)`
   margin: 30px 0;
   height: 40px;
 `;
-
 export const TabButton = styled.button`
   display: flex;
   text-align: center;
@@ -63,21 +74,4 @@ export const TabButton = styled.button`
       `;
     }
   }}
-`;
-
-export const KillTheDog = styled.div`
-  display: flex;
-  position: relative;
-  z-index: 50;
-  height: 20px;
-  width: 20px;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-  color: red;
-  top: -20px;
-  border-radius: 50%;
-  border: 1px solid red;
-  cursor: pointer;
 `;
